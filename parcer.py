@@ -16,7 +16,7 @@ def setup_driver():
 
 
 def search_wildberries(driver, query):
-    driver.get("https://www.wildberries.ru/")
+    driver.get("http://www.wildberries.ru/")
     print("Открыт сайт Wildberries.") #всякие такие принты нужны просто чтобы отследить на каком этапе и могло застопориться
 
     WebDriverWait(driver, 20).until(
@@ -58,7 +58,7 @@ def parse_results(driver):
             rating = rating_tag.text.strip() if rating_tag else "Рейтинг отсутствует"
 
             link_tag = item.select_one("a") #ссылка на саму карточку товара
-            link = f"https://www.wildberries.ru{link_tag['href']}" if link_tag else "Ссылка отсутствует"
+            link = f"{link_tag['href']}" if link_tag else "Ссылка отсутствует"
 
             results.append({
                 "Название": title,
