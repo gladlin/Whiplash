@@ -6,18 +6,20 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 
+from ShopClasses.Wildberries import Wildberries
+
 
 def setup_driver():
     options = uc.ChromeOptions()
     options.add_argument("--headless")
-    options.add_argument("--disable-blink-features=AutomationControlled") #флаг чтобы не банилол что типо бот пришел на сайт
+    options.add_argument("--disable-blink-features=AutomationControlled") # Флаг для обхода блокировки против ботов.
     driver = uc.Chrome(options=options)
     return driver
 
 
 def search_wildberries(driver, query):
     driver.get("http://www.wildberries.ru/")
-    print("Открыт сайт Wildberries.") #всякие такие принты нужны просто чтобы отследить на каком этапе и могло застопориться
+    print("Открыт сайт Wildberries.") # Print'ы для отслеживания работы программы и debugging'а.
 
     WebDriverWait(driver, 20).until(
         EC.presence_of_element_located((By.ID, "searchInput"))
@@ -25,9 +27,9 @@ def search_wildberries(driver, query):
     print("Поисковая строка найдена. Вводим запрос...")
 
     search_box = driver.find_element(By.ID, "searchInput")
-    search_box.click() #имитация действий пользователя, что когда он хочет ввести что-то в поиск, то он должен нажать на него
+    search_box.click() # Имитация действий пользователя, что когда он хочет ввести что-то в поиск, то он должен нажать на него
     search_box.send_keys(query)
-    search_box.send_keys(Keys.ENTER)#типо нажимаем кнопку ентер
+    search_box.send_keys(Keys.ENTER) # Нажимаем клавишу Enter.
 
     print("Запрос отправлен. Ожидаем загрузки результатов...")
     WebDriverWait(driver, 60).until(
@@ -35,7 +37,7 @@ def search_wildberries(driver, query):
     )
     print("Результаты поиска загрузились.")
 
-    with open("page_debug.html", "w", encoding="utf-8") as f: #файл, в котором прям вся страница с поиском ноута, городом новосибом родненьким и еще чем-то может быть
+    with open("page_debug.html", "w", encoding="utf-8") as f: # Файл, в котором прям вся страница с поиском ноута, городом новосибом родненьким и еще чем-то может быть
         f.write(driver.page_source)
     print("HTML текущей страницы сохранён в 'page_debug.html'.")
 
@@ -73,7 +75,7 @@ def parse_results(driver):
     return results
 
 
-def save_results_to_html(results, filename="index.html"): #формируется файл с табличкой с наименованием, ссылкой и ценой на товары из одной страницы
+def save_results_to_html(results, filename="index.html"): # Формируется файл с табличкой с наименованием, ссылкой и ценой на товары из одной страницы
     html_content = """
     <html>
     <head><title>Результаты поиска</title></head>
@@ -104,15 +106,31 @@ def save_results_to_html(results, filename="index.html"): #формируетс�
 
 
 def main():
-    query = "ноутбук" #потом надо добавить с проставлением цены и критерий отзывов, но сейчас хотя бы так работает - уже победа!
+    query = "ноутбук"  #потом надо добавить с проставлением цены и критерий отзывов, но сейчас хотя бы так работает - уже победа!
     driver = setup_driver()
-    #вообще код выполняется примерно секунд за 30 примерно(смэрть), но может быть можно будет уменьши время ожидания от сайтика и тогда будет итоговое время меньше
-    #но скажу често, что не было сил проверять, да и лень уже было как-то, а я пошла пить чай
+    #вообще код выполняется примерно секунд за 30 примерно(смэрть), но может быть можно будет уменьшить время ожидания от сайтика и тогда будет итоговое время меньше
+    #но скажу честно, не было сил проверять, да и лень уже было как-то, а я пошла пить чай.
+
+    # DER-2SH-KA: приятного прошедшего чаепития.
+
     try:
-        search_wildberries(driver, query)
-        results = parse_results(driver)
-        save_results_to_html(results)
-        print("Результаты сохранены в index.html")
+        # search_wildberries(driver, query)
+        # results = parse_results(driver)
+        # save_results_to_html(results)
+        # print(f"Результаты сохранены в index.html")
+
+        wildberries = Wildberries(
+            shop_name = "Wildberries",
+            driver = driver,
+            shop_main_link = "http://www.wildberries.ru/",
+            encoding = "utf-8"
+        )
+
+        wildberries.parse_search_page_without_filters(query = query)
+        results = wildberries.cherrypick_of_parsed_search_page_without_filters()
+        wildberries.save_result_to_html(results = results)
+        print(f"*** Результаты были сохранены в index_{wildberries.shop_name}.html ***")
+
     finally:
         driver.quit()
 
