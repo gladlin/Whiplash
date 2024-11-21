@@ -7,15 +7,17 @@ from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 
 from ShopClasses.Wildberries import Wildberries
+from ShopClasses.Ozon import  Ozon
+from Driver import setup_driver
 
 
-def setup_driver():
-    options = uc.ChromeOptions()
-    options.add_argument("--headless")
-    options.add_argument("--disable-infobars")
-    options.add_argument("--disable-blink-features=AutomationControlled") # Флаг для обхода блокировки против ботов.
-    driver = uc.Chrome(options=options)
-    return driver
+# def setup_driver():
+#     options = uc.ChromeOptions()
+#     options.add_argument("--headless")
+#     options.add_argument("--disable-infobars")
+#     options.add_argument("--disable-blink-features=AutomationControlled") # Флаг для обхода блокировки против ботов.
+#     driver = uc.Chrome(options=options)
+#     return driver
 
 
 # def search_wildberries(driver, query):
@@ -107,8 +109,10 @@ def setup_driver():
 
 
 def main():
-    query = "ноутбук"  #потом надо добавить с проставлением цены и критерий отзывов, но сейчас хотя бы так работает - уже победа!
+    query = "новогодние украшения"  #потом надо добавить с проставлением цены и критерий отзывов, но сейчас хотя бы так работает - уже победа!
     driver = setup_driver()
+    # print(type(driver))
+    # print()
     #вообще код выполняется примерно секунд за 30 примерно(смэрть), но может быть можно будет уменьшить время ожидания от сайтика и тогда будет итоговое время меньше
     #но скажу честно, не было сил проверять, да и лень уже было как-то, а я пошла пить чай.
 
@@ -120,6 +124,7 @@ def main():
         # save_results_to_html(results)
         # print(f"Результаты сохранены в index.html")
 
+        # Wildberries.
         wildberries = Wildberries(
             shop_name = "Wildberries",
             driver = driver,
@@ -131,7 +136,19 @@ def main():
         results = wildberries.cherrypick_of_parsed_search_page_without_filters()
         wildberries.save_result_to_html(results = results)
         print(f"*** Результаты были сохранены в index_{wildberries.shop_name}.html ***")
-        wildberries.driver_quit()
+        wildberries.driver_close()
+
+        # # Ozon.
+        # ozon = Ozon(
+        #     shop_name = "Ozon",
+        #     driver = driver,
+        #     shop_main_link = "https://www.ozon.ru/?__rr=1&abt_att=1",
+        #     encoding = "utf-8"
+        # )
+        #
+        # ozon.parse_search_page_without_filters(query = query)
+        #
+        # ozon.driver_close()
 
     finally:
         driver.quit()
