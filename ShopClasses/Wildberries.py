@@ -22,12 +22,13 @@ class Wildberries(WebSiteForParsing):
         print(f"*** Открыт сайт {self.shop_name} ***")  # Print'ы для отслеживания работы программы и debugging'а.
 
         (
-            WebDriverWait(self.__driver__, 40.0)
+            WebDriverWait(self.__driver__, 20.0)
                 .until(
                     EC.presence_of_element_located((By.ID, "searchInput")) # Поиск строки поиска на Wildberries.
                 )
         )
         print("*** Поисковая строка найдена. Вводим запрос... ***")
+
 
         search_box = self.__driver__.find_element(By.ID, "searchInput")
         search_box.click()  # Имитация действий пользователя, что когда он хочет ввести что-то в поиск, то он должен нажать на него
@@ -40,22 +41,23 @@ class Wildberries(WebSiteForParsing):
             time.sleep(0.4)
         search_box.send_keys(Keys.ENTER)
 
+        next_url = str(self.__driver__.current_url)
         self.__driver__.save_screenshot(f"screenshot_{self.shop_name}before.png")
-        self.__driver__.get( str(self.__driver__.current_url) )
-        print(str(self.__driver__.current_url))
-        time.sleep(5)
+        self.__driver__.get( next_url )
+        print( next_url )
+        time.sleep(1)
         self.__driver__.save_screenshot(f"screenshot_{self.shop_name}_after.png")
+
 
         print("*** Запрос отправлен. Ожидаем загрузки результатов... ***")
         (
-            WebDriverWait(self.__driver__, 30.0)
+            WebDriverWait(self.__driver__, 20.0)
                 .until(
                     lambda d: d.execute_script(
                         "return document.querySelectorAll('.product-card__wrapper')"
                     )
         ))
         print("*** Результаты поиска загрузились ***")
-        # self.__driver__.save_screenshot(f"screenshot_{self.shop_name}_1.png")
 
         with open(f"page_debug_{self.shop_name}.html", "w",
                   encoding=self.__encoding__) as f:  # Файл, в котором прям вся страница с поиском по запросу, городом новосибом родненьким и еще чем-то может быть
