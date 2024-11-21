@@ -21,3 +21,7 @@ class WebSiteForParsing(ABC):
     @abstractmethod
     def save_result_to_html(self, results):
         pass
+
+    @abstractmethod
+    def driver_quit(self):
+        pass

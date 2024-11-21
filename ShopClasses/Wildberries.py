@@ -31,15 +31,15 @@ class Wildberries(WebSiteForParsing):
 
         search_box = self.__driver__.find_element(By.ID, "searchInput")
         search_box.click()  # Имитация действий пользователя, что когда он хочет ввести что-то в поиск, то он должен нажать на него
-        search_box.send_keys(query)
-        search_box.send_keys(Keys.ENTER)  # Нажимаем клавишу Enter.
+        search_box.send_keys(str(query) + Keys.ENTER)
+        # search_box.send_keys(Keys.ENTER)  # Нажимаем клавишу Enter.
 
         print("*** Запрос отправлен. Ожидаем загрузки результатов... ***")
         (
             WebDriverWait(self.__driver__, 60.0)
                 .until(
                     lambda d: d.execute_script(
-                        "return document.querySelectorAll('.product-card__wrapper').length > 0"
+                        "return document.querySelectorAll('.product-card__wrapper')"
                     )
         ))
         print("*** Результаты поиска загрузились ***")
@@ -125,3 +125,6 @@ class Wildberries(WebSiteForParsing):
             file.write(html_content) # Запись HTML-разметки результатов для удобства анализирования.
             file.close()
             print(f"*** Результаты записаны в {filename} ***")
+
+    def driver_quit(self):
+        self.__driver__.quit()
