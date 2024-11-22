@@ -6,8 +6,7 @@ from selenium.webdriver.support import expected_conditions as ExpCond
 from bs4 import BeautifulSoup
 from pprint import pprint
 
-# TODO: Сделать метод для возвращения JSON объекта.
-import json
+# TODO: Возможно в будущем его реализовать.
 
 from AbstractClasses.WebSiteForParsing import  WebSiteForParsing
 

@@ -1,6 +1,8 @@
 import copy
 from abc import ABC, abstractmethod
 
+# TODO: Обновить картинку. Милая, но маленькая слишком.
+
 import undetected_chromedriver
 
 
