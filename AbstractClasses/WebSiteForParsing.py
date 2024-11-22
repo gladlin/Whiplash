@@ -1,3 +1,4 @@
+import copy
 from abc import ABC, abstractmethod
 
 import undetected_chromedriver
@@ -9,7 +10,7 @@ import undetected_chromedriver
 class WebSiteForParsing(ABC):
     def __init__(self, shop_name, driver, shop_main_link, encoding):
         self.shop_name: str = shop_name
-        self.__driver__: undetected_chromedriver.Chrome = driver
+        self.__driver__: undetected_chromedriver.Chrome = copy.copy(driver)
         self.__shop_main_link__: str = shop_main_link
         self.__encoding__: str = encoding
 
@@ -25,9 +26,12 @@ class WebSiteForParsing(ABC):
     def save_result_to_html(self, results):
         pass
 
-    @abstractmethod
-    def driver_close(self):
-        pass
+    def driver_close_and_quit(self):
+        print("\n*** Начало работы метода driver_close() ***")
+        if self.__driver__:
+            self.__driver__.close()
+            self.__driver__.quit()
+        print("*** Начало работы метода driver_close() ***\n")
 
 """
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣦⣄⡀⠄⠄⠄⠄⠄⠄⠄

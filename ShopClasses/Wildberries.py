@@ -18,64 +18,78 @@ class Wildberries(WebSiteForParsing):
         super().__init__(shop_name, driver, shop_main_link, encoding) # Переопределение полей родительского класса.
 
     def parse_search_page_without_filters(self, query):
+        print("\n*** Начало работы метода parse_search_page_without_filters() ***")
+        print(f"*** Открываем сайт {self.shop_name} ***")
         self.__driver__.get( self.__shop_main_link__ )
         print(f"*** Открыт сайт {self.shop_name} ***")  # Print'ы для отслеживания работы программы и debugging'а.
 
+        # Поиск строки поиска.
         try:
             (
-                WebDriverWait(self.__driver__, 10.0)
+                WebDriverWait(self.__driver__, 20.0)
                     .until(
                         EC.presence_of_element_located((By.ID, "searchInput")) # Поиск строки поиска на Wildberries.
                     )
             )
+
+            search_box = self.__driver__.find_element(By.ID, "searchInput")
             print("*** Поисковая строка найдена. Вводим запрос... ***")
-        except Exception as e:
-            print(f"*** Поисковая строка не найдена. Ошибка {e} ***")
+            search_box.click()  # Имитация действий пользователя, что когда он хочет ввести что-то в поиск, то он должен нажать на него
+            time.sleep(0.5)
+            search_box.click()
+            time.sleep(0.5)
+            search_box.click()
+            print(f"Поле ввода {self.shop_name} выбрано?: " + str(search_box.is_selected()))
 
+            time.sleep(0.2)
+            for char in str(query):
+                search_box.send_keys(str(char))
+                time.sleep(0.15)
+            search_box.send_keys(Keys.ENTER)
+            time.sleep(0.5)
+            search_box.send_keys(Keys.ENTER)
 
-        search_box = self.__driver__.find_element(By.ID, "searchInput")
-        search_box.click()  # Имитация действий пользователя, что когда он хочет ввести что-то в поиск, то он должен нажать на него
-        time.sleep(0.5)
-        search_box.click()
+            next_url = str(self.__driver__.current_url)
+            # self.__driver__.save_screenshot(f"screenshot_{self.shop_name}_before.png")
+            self.__driver__.get(next_url)
+            print(next_url)
+            time.sleep(1)
+            # self.__driver__.save_screenshot(f"screenshot_{self.shop_name}_after.png")
+            print("*** Запрос отправлен. Ожидаем загрузки результатов... ***")
 
-        time.sleep(0.2)
-        for char in str(query):
-            search_box.send_keys(str(char))
-            time.sleep(0.15)
-        search_box.send_keys(Keys.ENTER)
-
-        next_url = str(self.__driver__.current_url)
-        self.__driver__.save_screenshot(f"screenshot_{self.shop_name}before.png")
-        self.__driver__.get( next_url )
-        print( next_url )
-        time.sleep(1)
-        self.__driver__.save_screenshot(f"screenshot_{self.shop_name}_after.png")
-
-
-        print("*** Запрос отправлен. Ожидаем загрузки результатов... ***")
-
-        try:
-            (
-                WebDriverWait(self.__driver__, 45.0)
+            # Берём карточки товаров.
+            try:
+                (
+                    WebDriverWait(self.__driver__, 45.0)
                     .until(
                         lambda d: d.execute_script(
                             "return document.querySelectorAll('.product-card__wrapper')"
                         )
+                    )
                 )
-            )
-            self.__driver__.save_screenshot("Aboba_Wildberries_WebDriverWait.png")
-            print("*** Результаты поиска загрузились ***")
-        except Exception as e:
-            self.__driver__.save_screenshot("NeAboba_Wildberries_WebDriverWait.png")
-            print(f"***Ошибка до page_debug.html {e} ***")
+                # self.__driver__.save_screenshot(f"screenshot_{self.shop_name}_WebDriverWait.png")
+                print("*** Результаты поиска загрузились ***")
 
-        with open(f"page_debug_{self.shop_name}.html", "w",
-                  encoding=self.__encoding__) as f:  # Файл, в котором прям вся страница с поиском по запросу, городом новосибом родненьким и еще чем-то может быть
-            f.write(self.__driver__.page_source)
-            f.close()
-        print(f"*** HTML текущей страницы сохранён в 'page_debug_{self.shop_name}.html' ***")
+                with open(f"page_debug_{self.shop_name}.html", "w",
+                          encoding=self.__encoding__) as f:  # Файл, в котором прям вся страница с поиском по запросу, городом новосибом родненьким и еще чем-то может быть
+                    f.write(self.__driver__.page_source)
+                    f.close()
+                print(f"*** HTML текущей страницы сохранён в 'page_debug_{self.shop_name}.html' ***")
+
+            except Exception as e1:
+                # self.__driver__.save_screenshot("NeAboba_Wildberries_WebDriverWait.png")
+                print(f"*** Карточки товаров не найдены ***")
+                print(e1)
+
+        except Exception as e:
+            print(f"*** Поисковая строка не найдена ***")
+            print(e)
+        finally:
+            print("*** Конец работы метода parse_search_page_without_filters() ***\n")
 
     def cherrypick_of_parsed_search_page_without_filters(self):
+        print("\n*** Начало работы метода cherrypick_of_parsed_search_page_without_filters() ***")
+
         soup = BeautifulSoup(self.__driver__.page_source, "html.parser")
         items = soup.select("div.product-card__wrapper")
 
@@ -111,13 +125,16 @@ class Wildberries(WebSiteForParsing):
                 print(f"*** Ошибка при обработке товара: {e}! ***")
                 continue
 
+        print("*** Конец работы метода cherrypick_of_parsed_search_page_without_filters() ***\n")
         return results
 
     def save_result_to_html(self, results):
+        print("\n*** Начало работы метода save_result_to_html() ***")
+
         filename = f"index_{self.shop_name}.html"
-        html_content = """
+        html_content = f"""
             <html>
-            <head><title>Результаты поиска</title></head>
+            <head><title>Результаты поиска на {self.shop_name}</title></head>
             <body>
             <h1>Результаты поиска</h1>
             <table border="1">
@@ -152,5 +169,4 @@ class Wildberries(WebSiteForParsing):
             file.close()
             print(f"*** Результаты записаны в {filename} ***")
 
-    def driver_close(self):
-        self.__driver__.close()
+        print("*** Конец работы метода save_result_to_html() ***\n")
