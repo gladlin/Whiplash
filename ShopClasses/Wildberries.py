@@ -21,24 +21,27 @@ class Wildberries(WebSiteForParsing):
         self.__driver__.get( self.__shop_main_link__ )
         print(f"*** Открыт сайт {self.shop_name} ***")  # Print'ы для отслеживания работы программы и debugging'а.
 
-        (
-            WebDriverWait(self.__driver__, 20.0)
-                .until(
-                    EC.presence_of_element_located((By.ID, "searchInput")) # Поиск строки поиска на Wildberries.
-                )
-        )
-        print("*** Поисковая строка найдена. Вводим запрос... ***")
+        try:
+            (
+                WebDriverWait(self.__driver__, 10.0)
+                    .until(
+                        EC.presence_of_element_located((By.ID, "searchInput")) # Поиск строки поиска на Wildberries.
+                    )
+            )
+            print("*** Поисковая строка найдена. Вводим запрос... ***")
+        except Exception as e:
+            print(f"*** Поисковая строка не найдена. Ошибка {e} ***")
 
 
         search_box = self.__driver__.find_element(By.ID, "searchInput")
         search_box.click()  # Имитация действий пользователя, что когда он хочет ввести что-то в поиск, то он должен нажать на него
-        time.sleep(0.3)
+        time.sleep(0.5)
         search_box.click()
 
-        time.sleep(0.4)
+        time.sleep(0.2)
         for char in str(query):
             search_box.send_keys(str(char))
-            time.sleep(0.4)
+            time.sleep(0.15)
         search_box.send_keys(Keys.ENTER)
 
         next_url = str(self.__driver__.current_url)
@@ -50,14 +53,21 @@ class Wildberries(WebSiteForParsing):
 
 
         print("*** Запрос отправлен. Ожидаем загрузки результатов... ***")
-        (
-            WebDriverWait(self.__driver__, 20.0)
-                .until(
-                    lambda d: d.execute_script(
-                        "return document.querySelectorAll('.product-card__wrapper')"
-                    )
-        ))
-        print("*** Результаты поиска загрузились ***")
+
+        try:
+            (
+                WebDriverWait(self.__driver__, 45.0)
+                    .until(
+                        lambda d: d.execute_script(
+                            "return document.querySelectorAll('.product-card__wrapper')"
+                        )
+                )
+            )
+            self.__driver__.save_screenshot("Aboba_Wildberries_WebDriverWait.png")
+            print("*** Результаты поиска загрузились ***")
+        except Exception as e:
+            self.__driver__.save_screenshot("NeAboba_Wildberries_WebDriverWait.png")
+            print(f"***Ошибка до page_debug.html {e} ***")
 
         with open(f"page_debug_{self.shop_name}.html", "w",
                   encoding=self.__encoding__) as f:  # Файл, в котором прям вся страница с поиском по запросу, городом новосибом родненьким и еще чем-то может быть
