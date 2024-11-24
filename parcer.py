@@ -35,6 +35,7 @@ def main():
 
         print("\n*** Конец парсинга Wildberries ***\n")
 
+        driver.__del__()
         driver = setup_driver()
 
 
@@ -69,9 +70,9 @@ def main():
 
     except Exception as e:
         print(f"*** Ошибка {e} ***")
-    # finally:
-    #     if driver:
-    #         driver.quit()
+    finally:
+        if driver:
+            driver.quit()
 
 
 if __name__ == "__main__":
