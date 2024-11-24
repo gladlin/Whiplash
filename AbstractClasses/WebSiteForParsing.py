@@ -1,4 +1,4 @@
-import copy
+from copy import copy
 from abc import ABC, abstractmethod
 
 # TODO: Обновить картинку. Милая, но маленькая слишком.
@@ -12,7 +12,7 @@ import undetected_chromedriver
 class WebSiteForParsing(ABC):
     def __init__(self, shop_name, driver, shop_main_link, encoding):
         self.shop_name: str = shop_name
-        self.__driver__: undetected_chromedriver.Chrome = copy.copy(driver)
+        self.__driver__: undetected_chromedriver.Chrome = copy(driver)
         self.__shop_main_link__: str = shop_main_link
         self.__encoding__: str = encoding
 
