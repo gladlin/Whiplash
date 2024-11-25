@@ -33,7 +33,7 @@ class WebSiteForParsing(ABC):
         if self.__driver__:
             self.__driver__.close()
             self.__driver__.quit()
-        print("*** Начало работы метода driver_close() ***\n")
+        print("*** Конец работы метода driver_close() ***\n")
 
 """
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣦⣄⡀⠄⠄⠄⠄⠄⠄⠄
