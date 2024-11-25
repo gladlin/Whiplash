@@ -149,11 +149,13 @@ class Pyatyourochka(WebSiteForParsing):
 
                 results.append(
                     {
-                        "Изображение" : image,
-                        "Название" : title,
-                        "Цена" : price,
-                        "Рейтинг" : raiting,
-                        "Ссылка" : link
+                        "Название": title,
+                        "Цена": price,
+                        "Рейтинг": raiting,
+                        "Количество отзывов": "None",
+                        "Ссылка": link,
+                        "Полное описание": "None",
+                        "Изображение": image,
                     }
                 )
             except Exception as e:

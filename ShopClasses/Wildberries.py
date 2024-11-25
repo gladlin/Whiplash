@@ -112,34 +112,34 @@ class Wildberries(WebSiteForParsing):
         results = list()
         for item in items:
             try:
-                title_tag = item.select_one("span.product-card__name")  # тег с названием товара
+                title_tag = item.select_one("span.product-card__name")
                 title = title_tag.text.strip() if title_tag else "Название отсутствует"
 
-                price_tag = item.select_one("ins.price__lower-price")  # тег содержанием цены товара(окончательной)
+                price_tag = item.select_one("ins.price__lower-price")
                 price = price_tag.text.strip() if price_tag else "Цена отсутствует"
 
-                rating_tag = item.select_one("span.address-rate-mini")  # просто общий рейтинг товара в звездах
-                rating = rating_tag.text.strip() if rating_tag else "Рейтинг отсутствует"
+                rating, reviews_count = self.parse_reviews_and_rating(item)
 
-                link_tag = item.select_one("a")  # ссылка на саму карточку товара
+                link_tag = item.select_one("a")
                 link = f"{link_tag['href']}" if link_tag else "Ссылка отсутствует"
+                details = self.parse_item_details(link) if link != "Ссылка отсутствует" else {
+                    "Полное описание": None,
+                    "Изображение": None,
+                }
 
                 results.append(
                     {
-                        "Название": title,
+                        "Название": title[2::],
                         "Цена": price,
-                        "Рейтинг": rating,
+                        "Рейтинг": rating if rating is not None else "Нет оценок",
+                        "Количество отзывов": reviews_count,
                         "Ссылка": link,
+                        "Полное описание": details.get("Полное описание", "Описание отсутствует"),
+                        "Изображение": details.get("Изображение", "Нет изображения"),
                     }
                 )
-
-                # print("*** Результат парсинга (cherrypick) результатов поиска ***")
-                # pprint(results)
-                # print("*** Конец результата поиска ***")
-
             except Exception as e:
-                print(f"*** Ошибка при обработке товара: {e}! ***")
-                continue
+                print(f"Ошибка при обработке товара: {e}")
 
         print("*** Конец работы метода cherrypick_of_parsed_search_page_without_filters() ***\n")
         return results
@@ -278,7 +278,7 @@ class Wildberries(WebSiteForParsing):
 
                 results.append(
                     {
-                        "Название": title,
+                        "Название": title[2::],
                         "Цена": price,
                         "Рейтинг": rating if rating is not None else "Нет оценок",
                         "Количество отзывов": reviews_count,
@@ -290,7 +290,7 @@ class Wildberries(WebSiteForParsing):
             except Exception as e:
                 print(f"Ошибка при обработке товара: {e}")
 
-        self.__driver__.save_screenshot("parse_filtered_items.png")
+        # self.__driver__.save_screenshot("parse_filtered_items.png")
         print("*** Конец работы метода parse_filtered_items() ***\n")
         return results
 
