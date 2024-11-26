@@ -7,32 +7,20 @@ import threading
 from queue import Queue
 from typing import List, Dict, Optional
 
-"""
-пока что комментарии корявые так как у меня нет времени их нормально писать я и тупо через chat gpt сгенерировала их
-код выполняется примерно за 5 секунд при 4-х потоках и 50 запросах
-иногда бывает что какие-то рандомные вещи начинает искать, тогда надо код несколько раз перезапустить, в таком случае
-ошибка по моему быстро появляется
 
-я спатки
-
-"""
 class WildberriesParser:
     def __init__(self,
                  min_price: Optional[float] = None,
                  max_price: Optional[float] = None,
                  min_rating: Optional[float] = None,
                  delivery_time: Optional[str] = None,
-                 max_products: int = 100,
+                 max_products: int = 50,
                  num_threads: int = 4):
-        """
-        Инициализация парсера с расширенными параметрами
 
-        :param max_products: Максимальное количество товаров для парсинга
-        :param num_threads: Количество потоков для параллельного парсинга
-        """
         # URL для поиска товаров на Wildberries
         self.search_url = "https://search.wb.ru/exactmatch/ru/common/v4/search"
-        # Заголовки для HTTP-запросов
+        # Заголовки для HTTP-запросов, требования к браузеру, который открываем,
+        # на котором мы и будем отправлять разные запросы к бд вб
         self.headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         }
@@ -137,7 +125,7 @@ class WildberriesParser:
 
         return host
 
-    def _get_product_details(self, product_url: str) -> Dict[str, str]:
+    def _get_product_details(self, product_url: str, num_of_pictures: int) -> Dict[str, list]:
         """Получение деталей товара с использованием безопасного подхода"""
         try:
             # Извлекаем ID товара из URL
@@ -154,18 +142,19 @@ class WildberriesParser:
             # Извлекаем описание товара из ответа
             description_data = response.json()
             description_text = description_data.get('description', '')
-
-            # Формируем URL для первой картинки товара
-            first_image_url = f"https://basket-{host}.wbbasket.ru/vol{int(product_id) // 100000}/part{int(product_id) // 1000}/{product_id}/images/big/1.webp"
+            images = []
+            for i in range(1, num_of_pictures + 1):
+                image_url = f"https://basket-{host}.wbbasket.ru/vol{int(product_id) // 100000}/part{int(product_id) // 1000}/{product_id}/images/big/{i}.webp"
+                images.append(image_url)
 
             return {
-                'description': description_text,
-                'first_image_url': first_image_url
+                'Полное описание': description_text,
+                'Изображение': images
             }
 
         except Exception as e:
             print(f"Ошибка при получении деталей: {e}")
-            return {'description': '', 'first_image_url': ''}
+            return {'description': '', 'images': []}
 
     def search_products(self, query: str, page: int = 1) -> List[Dict]:
         """Поиск товаров с многопоточной обработкой"""
@@ -227,14 +216,14 @@ class WildberriesParser:
                 # Формируем URL товара
                 product_url = f"https://www.wildberries.ru/catalog/{product.get('id', '')}/detail.aspx"
                 # Получаем детали товара
-                details = self._get_product_details(product_url)
+                details = self._get_product_details(product_url, product.get('pics', 0))
 
                 # Формируем обработанную информацию о товаре
                 processed_product = {
-                    'name': product.get('name', ''),
-                    'price': product.get('salePriceU', 0) / 100,
-                    'rating': product.get('reviewRating', 0),
-                    'product_url': product_url,
+                    'Название': product.get('name', ''),
+                    'Цена': product.get('salePriceU', 0) / 100,
+                    'Рейтинг': product.get('reviewRating', 0),
+                    'Ссылка': product_url,
                     **details
                 }
 
@@ -254,7 +243,7 @@ if __name__ == "__main__":
         max_price=700,
         min_rating=4,
     )
-    products = parser.search_products("кружка")
+    products = parser.search_products("фурри")
     print("Парс завершен успешно")
 
 """
