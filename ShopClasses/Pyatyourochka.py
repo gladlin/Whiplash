@@ -112,60 +112,72 @@ class Pyatyourochka(WebSiteForParsing):
     def cherrypick_of_parsed_search_page_without_filters(self):
         print("\n*** Начало работы метода cherrypick_of_parsed_search_page_without_filters() ***")
 
-        self.__driver__.save_screenshot("cherrypick_start.png")
-        soup = BeautifulSoup(self.__driver__.page_source, 'html.parser')
-        groupOfItems = soup.find("div", {"class" : "UEvWGs5b-"} )
-        # pprint(groupOfItems.prettify())
-        items = groupOfItems.select(".xlSVIYdp-")
-        # pprint(items)
-
         results = list()
-        for item in items:
-            # print(item.prettify())
-            try:
-                image_tag = item.select_one(".jvh9M_6y-")
-                # pprint(image_tag)
-                # print("Голубь")
-                image1 = image_tag['style'] if image_tag is not None \
-                    else "None"
-                image = re.search(r"url\(\"(.*?)\"\);", image1).group(1)
-                # print(image)
-
-                title_tag = item.select_one(".SdLEFc2B-")
-                title = title_tag.text if title_tag is not None \
-                    else "None"
-                # print(title)
-
-                price_123 = item.select(".css-6uvdux")
-                price = (str(price_123[0].text) + "." + str(price_123[1].text)
-                         + " " + str(price_123[2].text)) if price_123 else "None"
-                # print(price) if price_123 is not None else "Цены нет"
-
-                rating_tag = item.select_one(".o1tGK2uB-")
-                raiting = rating_tag.text if rating_tag is not None \
-                    else "None"
-
-                link = self.__shop_main_link__ + str(item['href']) if item is not None \
-                    else "None"
-
-                # description_search = self.search_description_of_product(link)
-                # description = description_search if description_search is not None \
-                #     else "None"
-
-                results.append(
-                    {
-                        "Название": title,
-                        "Цена": price,
-                        "Рейтинг": raiting,
-                        "Количество отзывов": "None",
-                        "Ссылка": link,
-                        "Полное описание": "None",
-                        "Изображение": image,
-                    }
+        try:
+            WebDriverWait(self.__driver__, 20.0).until(
+                EC.presence_of_all_elements_located(
+                    (By.CLASS_NAME, "UEvWGs5b-")
                 )
-            except Exception as e:
-                print(e)
-                continue
+            )
+            self.__driver__.save_screenshot("cherrypick_start.png")
+
+            soup = BeautifulSoup(self.__driver__.page_source, 'html.parser')
+            groupOfItems = soup.find("div", {"class" : "UEvWGs5b-"} )
+            # pprint(groupOfItems.prettify())
+            items = groupOfItems.select(".xlSVIYdp-")
+            # pprint(items)
+
+            for item in items:
+                # print(item.prettify())
+                try:
+                    image_tag = item.select_one(".jvh9M_6y-")
+                    # pprint(image_tag)
+                    # print("Голубь")
+                    image1 = image_tag['style'] if image_tag is not None \
+                        else "None"
+                    image = re.search(r"url\(\"(.*?)\"\);", image1).group(1)
+                    # print(image)
+
+                    title_tag = item.select_one(".SdLEFc2B-")
+                    title = title_tag.text if title_tag is not None \
+                        else "None"
+                    # print(title)
+
+                    price_123 = item.select(".css-6uvdux")
+                    price = (str(price_123[0].text) + "." + str(price_123[1].text)
+                             + " " + str(price_123[2].text)) if price_123 else "None"
+                    # print(price) if price_123 is not None else "Цены нет"
+
+                    rating_tag = item.select_one(".o1tGK2uB-")
+                    raiting = rating_tag.text if rating_tag is not None \
+                        else "None"
+
+                    link = self.__shop_main_link__ + str(item['href']) if item is not None \
+                        else "None"
+
+                    description_search = self.search_description_of_product(link)
+                    description = description_search if description_search is not None \
+                        else "None"
+
+                    results.append(
+                        {
+                            "Название": title,
+                            "Цена": price,
+                            "Рейтинг": raiting,
+                            "Количество отзывов": "None",
+                            "Ссылка": link,
+                            "Полное описание": description,
+                            "Изображение": image,
+                        }
+                    )
+                except Exception as e:
+                    print(e)
+                    continue
+
+        except Exception as e1:
+            print(e1)
+            print("*** Ошибка в выделении элементов страницы cherrypick ***")
+
         # pprint(results)
 
         print("*** Конец работы метода cherrypick_of_parsed_search_page_without_filters() ***\n")
@@ -224,21 +236,43 @@ class Pyatyourochka(WebSiteForParsing):
     def search_description_of_product(self, link: str) -> str:
         print("\n*** Начало работы метода search_description_of_product() ***")
 
+        description = ""
         try:
             time.sleep(1)
             self.__driver__.get(link)
+            # print(self.__driver__.current_url)
 
-            self.__driver__.save_screenshot(f"k.png")
+            WebDriverWait(self.__driver__, 7.0).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, ".QbszJz8b-"))
+            )
+
+            # self.__driver__.save_screenshot(f"k.png")
 
             soup = BeautifulSoup(self.__driver__.page_source, "html.parser")
             # print(soup.prettify())
 
-            description = soup.select_one(".QbszJz8b-")
-            pprint(description)
+            description = soup.select_one(".QbszJz8b-").text
+            # pprint(description)
 
             print("*** Конец работы метода search_description_of_product() ***\n")
             return description
         except Exception as e:
-            print(e)
-            print("*** Конец работы метода search_description_of_product() ***\n")
+            try:
+                WebDriverWait(self.__driver__, 7.0).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, ".TvoT0wiK-"))
+                )
+
+                # self.__driver__.save_screenshot(f"k.png")
+
+                soup = BeautifulSoup(self.__driver__.page_source, "html.parser")
+                # print(soup.prettify())
+
+                description = soup.select_one(".TvoT0wiK-").text
+                # pprint(description)
+
+                print("*** Конец работы метода search_description_of_product() ***\n")
+                return description
+            except Exception as e1:
+                print(e1)
+        print("*** Конец работы метода search_description_of_product() ***\n")
         return None

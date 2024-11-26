@@ -9,7 +9,7 @@ from Driver import setup_driver
 
 
 def main():
-    query = "Orbit"  # Потом надо добавить с проставлением цены и критерий отзывов, но сейчас хотя бы так работает - уже победа!
+    query = "Сметана"  # Потом надо добавить с проставлением цены и критерий отзывов, но сейчас хотя бы так работает - уже победа!
     driver = setup_driver()
     #вообще код выполняется примерно секунд за 30 примерно(смэрть), но может быть можно будет уменьшить время ожидания от сайтика и тогда будет итоговое время меньше
     #но скажу честно, не было сил проверять, да и лень уже было как-то, а я пошла пить чай.
@@ -39,7 +39,7 @@ def main():
         # try:
         #     JsonHelper.write_list_to_json_file(
         #         results_wb,
-        #         "wildberries_sobaka"
+        #         "wildberries_gde_posilka"
         #     )
         # except Exception as e1:
         #     print(e1)
@@ -77,11 +77,17 @@ def main():
         results_pyatyourochka = (
             pyatyourochka.cherrypick_of_parsed_search_page_without_filters()
         )
+        pprint(results_pyatyourochka)
         try:
-            JsonHelper.write_list_to_json_file(
+            is_writen = JsonHelper.write_list_to_json_file(
                 results_pyatyourochka,
                 "Pyatorochka_kniggers"
             )
+
+            if is_writen:
+                print("JSON записан")
+            else:
+                print("JSON не записан")
         except Exception as e1:
             print(e1)
         # pprint(results_pyatyourochka)
