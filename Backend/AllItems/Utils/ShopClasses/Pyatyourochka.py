@@ -1,16 +1,13 @@
 import time
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
-from pprint import pprint
 import re
 
 # TODO: Сделать метод для возвращения JSON объекта.
-import json
 
-from AbstractClasses.WebSiteForParsing import  WebSiteForParsing
+from Backend.AllItems.Utils.AbstractClasses.WebSiteForParsing import  WebSiteForParsing
 
 # Класс для парсинга магазина Пятёрочки.
 class Pyatyourochka(WebSiteForParsing):
@@ -334,4 +331,5 @@ class Pyatyourochka(WebSiteForParsing):
 ++++++****+++++****%%@@@#+******####%%%%%%%%###############%%%%%#*#%%#************+=----------------
 +++++**++++++******%%%@%*********#####%%%%%%%%%%%%%%%%#%%%%%%%#****%%***************+=--------------
 +++++++++++********%@@%#*********######%%%%%%%%%%%%%%%%%%%%%%#****##**+***************+=---------===
+-> It is Yasha <-
 """

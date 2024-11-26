@@ -4,12 +4,10 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
-from pprint import pprint
 
 # TODO: Сделать метод для возвращения JSON объекта.
-import json
 
-from AbstractClasses.WebSiteForParsing import  WebSiteForParsing
+from Backend.AllItems.Utils.AbstractClasses.WebSiteForParsing import  WebSiteForParsing
 
 
 # Класс для парсинга магазина Wildberries.
