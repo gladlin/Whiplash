@@ -81,7 +81,7 @@ def main():
         try:
             is_writen = JsonHelper.write_list_to_json_file(
                 results_pyatyourochka,
-                "Pyatorochka_kniggers"
+                "Pyatorochka_Chingis"
             )
 
             if is_writen:
