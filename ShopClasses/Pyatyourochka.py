@@ -112,6 +112,7 @@ class Pyatyourochka(WebSiteForParsing):
     def cherrypick_of_parsed_search_page_without_filters(self):
         print("\n*** Начало работы метода cherrypick_of_parsed_search_page_without_filters() ***")
 
+        self.__driver__.save_screenshot("cherrypick_start.png")
         soup = BeautifulSoup(self.__driver__.page_source, 'html.parser')
         groupOfItems = soup.find("div", {"class" : "UEvWGs5b-"} )
         # pprint(groupOfItems.prettify())
@@ -126,26 +127,30 @@ class Pyatyourochka(WebSiteForParsing):
                 # pprint(image_tag)
                 # print("Голубь")
                 image1 = image_tag['style'] if image_tag is not None \
-                    else "Изображение отсутствует"
+                    else "None"
                 image = re.search(r"url\(\"(.*?)\"\);", image1).group(1)
                 # print(image)
 
                 title_tag = item.select_one(".SdLEFc2B-")
                 title = title_tag.text if title_tag is not None \
-                    else "Название отсутствует"
+                    else "None"
                 # print(title)
 
                 price_123 = item.select(".css-6uvdux")
                 price = (str(price_123[0].text) + "." + str(price_123[1].text)
-                         + " " + str(price_123[2].text)) if price_123 else "Цена отсутствует"
+                         + " " + str(price_123[2].text)) if price_123 else "None"
                 # print(price) if price_123 is not None else "Цены нет"
 
                 rating_tag = item.select_one(".o1tGK2uB-")
                 raiting = rating_tag.text if rating_tag is not None \
-                    else "Рейтинг отсутствует"
+                    else "None"
 
                 link = self.__shop_main_link__ + str(item['href']) if item is not None \
-                    else "Ссылки на товар"
+                    else "None"
+
+                # description_search = self.search_description_of_product(link)
+                # description = description_search if description_search is not None \
+                #     else "None"
 
                 results.append(
                     {
@@ -160,6 +165,7 @@ class Pyatyourochka(WebSiteForParsing):
                 )
             except Exception as e:
                 print(e)
+                continue
         # pprint(results)
 
         print("*** Конец работы метода cherrypick_of_parsed_search_page_without_filters() ***\n")
@@ -176,21 +182,26 @@ class Pyatyourochka(WebSiteForParsing):
                     <h1>Результаты поиска</h1>
                     <table border="1">
                         <tr>
-                            <th>Изображение</th>
                             <th>Название</th>
                             <th>Цена</th>
                             <th>Рейтинг</th>
+                            <th>Количество отзывов</th>
                             <th>Ссылка</th>
+                            <th>Полное описание</th>
+                            <th>Изображение</th>
                         </tr>
                     """
         for result in results:
             html_content += f"""
                         <tr>
-                            <td><div style='background-image: url(\"{result["Изображение"]}\"); height: 200px;' /></td>
                             <td>{result["Название"]}</td>
                             <td>{result["Цена"]}</td>
-                            <td>{result["Рейтинг"]}
+                            <td>{result["Рейтинг"]}</td>
+                            <td>{result["Количество отзывов"]}</td>
                             <td><a href="{result["Ссылка"]}" target="_blank">Ссылка</a></td>
+                            <td>{result["Полное описание"]}</td>
+                            <td><div style='background-image: url(\"{result["Изображение"]}\"); height: 200px;' /></td>
+
                         </tr>
                         """
         else:
@@ -209,3 +220,25 @@ class Pyatyourochka(WebSiteForParsing):
             print(f"*** Результаты записаны в {filename} ***")
 
         print("*** Конец работы метода save_result_to_html() ***\n")
+
+    def search_description_of_product(self, link: str) -> str:
+        print("\n*** Начало работы метода search_description_of_product() ***")
+
+        try:
+            time.sleep(1)
+            self.__driver__.get(link)
+
+            self.__driver__.save_screenshot(f"k.png")
+
+            soup = BeautifulSoup(self.__driver__.page_source, "html.parser")
+            # print(soup.prettify())
+
+            description = soup.select_one(".QbszJz8b-")
+            pprint(description)
+
+            print("*** Конец работы метода search_description_of_product() ***\n")
+            return description
+        except Exception as e:
+            print(e)
+            print("*** Конец работы метода search_description_of_product() ***\n")
+        return None

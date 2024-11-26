@@ -80,7 +80,7 @@ def main():
         try:
             JsonHelper.write_list_to_json_file(
                 results_pyatyourochka,
-                "Pyatorochka_koshka"
+                "Pyatorochka_kniggers"
             )
         except Exception as e1:
             print(e1)
